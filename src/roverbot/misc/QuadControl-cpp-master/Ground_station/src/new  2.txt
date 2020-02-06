@@ -1,0 +1,26 @@
+alpha=4;
+n=10;
+F=@(x)(sqrt(1+sum(x.^2,2)).^(alpha));
+mu=zeros(n,1);
+
+% P=[114.2595,90.1397,8.9751;
+%     90.1397,92.2504,29.1237;
+%     8.9751,29.1237,84.0908];
+P=100*eye(10);
+
+
+[x,w]=GH_points(mu,P,6);
+t1=sum(w.*F(x))
+
+
+N=100000;
+x = mvnrnd(mu', P, N);
+w=ones(N,1)/N;
+mc=sum(w.*F(x))
+mcp=abs(mc-t1)/t1
+
+global kappa;
+kappa=0
+[x,w]=UT_sigmapoints(mu,P,2);
+m_ut=sum(w.*F(x))
+mutp=abs(m_ut-t1)/t1

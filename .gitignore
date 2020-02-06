@@ -1,0 +1,10 @@
+build/
+devel/
+install/
+*.err
+*.pid
+*.out
+*.log
+*.tar.gz
+*.log
+*.tar

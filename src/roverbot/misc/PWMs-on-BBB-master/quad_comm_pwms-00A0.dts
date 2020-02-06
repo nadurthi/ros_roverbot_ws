@@ -1,0 +1,172 @@
+/*
+ * Copyright (C) 2013 CircuitCo
+ * Copyright (C) 2013 Texas Instruments
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ * Modified by Nagavenkat Adurthi on Jan 19th 2014
+ * Use UART1,UART2, 4 PWMS and change i2c1 to 
+ */
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+	/* identification */
+	part-number = "quad_comm_pwms-00A0";
+	version = "00A0";
+
+	/* state the resources this cape uses */
+	exclusive-use =
+		/* the pin header uses */
+		"P9.14",		/* pwm: ehrpwm1A */
+		"P9.16",		/* pwm: ehrpwm1B */
+	        "P8.13",		/* pwm: ehrpwm2B */
+	        "P8.19",		/* pwm: ehrpwm2A */
+		"P9.24",	/* uart1_txd */
+		"P9.26",	/* uart1_rxd */
+		"P9.21",	/* uart2_txd */
+		"P9.22",	/* uart2_rxd */
+		"P9.20",	/* i2c2_sda look at pin out schematic but software says i2c1*/
+		"P9.19",	/* i2c2_scl look at pin out schematic but software says i2c1*/
+
+		/* the hardware IP uses */
+		"ehrpwm1A",
+		"ehrpwm1B",
+		"ehrpwm2B",
+		"ehrpwm2A",
+		"uart1tx",
+		"uart1rx",
+		"uart2tx",
+		"uart2rx",
+		"i2c2sda",
+		"i2c2scl";
+
+
+	fragment@0 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+			pwm_P9_1416: pinmux_pwm_P9_1416_pins {
+				pinctrl-single,pins = <
+					0x048  0x6	/* P9_14 (ZCZ ball U14) | MODE 6 */
+					0x04c  0x6	/* P9_16 (ZCZ ball T14) | MODE 6 */
+                     >; 
+			};
+
+                pwm_P8_1319: pinmux_pwm_P8_1319_pins {
+				pinctrl-single,pins = <
+					0x024  0x4	/* P8_13 (ZCZ ball T10) | MODE 4 */
+					0x020  0x4 /* P8_19 (ZCZ ball U10) | MODE 4 */
+                     >; 
+			};
+		bb_uart1_pins: pinmux_bb_uart1_pins {
+				pinctrl-single,pins = <
+					0x184 0x20 /* P9.24 uart1_txd.uart1_txd  OUTPUT  */
+					0x180 0x20 /* P9.26 uart1_rxd.uart1_rxd  INPUT  */
+				>;
+			};
+		bb_uart2_pins: pinmux_bb_uart2_pins {
+				pinctrl-single,pins = <
+					0x150 0x21	/* spi0_sclk.uart2_rxd | MODE1 */
+					0x154 0x01	/* spi0_d0.uart2_txd | MODE1 */
+				>;
+			};
+		bb_i2c1_pins: pinmux_bb_i2c1_pins {
+				pinctrl-single,pins = <
+					0x158 0x72	/* spi0_d1.i2c1_sda, SLEWCTRL_SLOW | INPUT_PULLUP | MODE2 */
+					0x15c 0x72	/* spi0_cs0.i2c1_scl, SLEWCTRL_SLOW | INPUT_PULLUP | MODE2 */
+				>;
+			};
+
+
+		};
+	};
+
+     
+
+	/* fragment@1 {
+		target = <&ocp>;
+		__overlay__ {
+			pwm_test_P9_14 {
+				compatible	= "pwm_test";
+				pwms 		= <&ehrpwm1 0 500000 1>;
+				pwm-names 	= "PWM_P9_14";
+			    pinctrl-names	= "default";
+			    pinctrl-0	= <&pwm_P9_14>;
+				enabled		= <1>;
+				duty		= <0>;
+				status 		= "okay";
+			};
+		};
+	};
+
+*/
+        fragment@2 {
+		target = <&epwmss1>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@3 {
+		target = <&ehrpwm1>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm_P9_1416>;
+			status = "okay";
+		};
+	};
+
+       fragment@4 {
+		target = <&epwmss2>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@5 {
+		target = <&ehrpwm2>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm_P8_1319>;
+			status = "okay";
+		};
+	};
+
+	fragment@6 {
+		target = <&uart2>;	/* really uart1 */
+		__overlay__ {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <&bb_uart1_pins>;
+		};
+	};
+
+	fragment@7 {
+		target = <&uart3>;	/* really uart2 */
+		__overlay__ {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <&bb_uart2_pins>;
+		};
+	};
+
+	fragment@8 {
+		target = <&i2c1>;	
+		__overlay__ {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <&bb_i2c1_pins>;
+
+			/* this is the configuration part */
+			clock-frequency = <400000>;	
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+		};
+	};
+
+};
