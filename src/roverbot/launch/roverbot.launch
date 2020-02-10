@@ -2,11 +2,9 @@
 <launch>
 
 
-<node name="rovercam" pkg="roscamhub" type="cvpicampub" args="" respawn="true" />
-<node name="imupub" pkg="roverbot" type="roverimupub" args="" respawn="true" />
-<node name="pwmcontroller" pkg="roverbot" type="roverpwmctrl" args="" respawn="true" />
-<node name="sonarpub" pkg="roverbot" type="roversonarpub" args="" respawn="true" />
-<node name="batterypub" pkg="roverbot" type="roverbatterypub" args="" respawn="true" />
+<node name="campub" pkg="roverbot" type="rovercampub" args="" respawn="true" />
+<node name="i2clooper" pkg="roverbot" type="roveri2clooper" args="" respawn="true" />
+
 
 </launch>
 

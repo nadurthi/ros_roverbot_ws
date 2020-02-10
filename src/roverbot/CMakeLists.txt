@@ -2,21 +2,22 @@ cmake_minimum_required(VERSION 2.8.3)
 project(roverbot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++11 -Wall -Wextra -pedantic)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "-O3 -Wall -std=c++1y ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -pedantic -std=c++1y ${CMAKE_CXX_FLAGS}")
 endif()
 
-
+set(CUDA_TOOLKIT_ROOT_DIR $ENV{CUDA_TOOLKIT_ROOT_DIR})
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  dynamic_reconfigure
   rosutils
   roscpp
   rospy
@@ -24,89 +25,17 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   message_generation
-  cv_bridge                                                                                                                                                               
-  image_transport 
+  cv_bridge
+  image_transport
   
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 find_package (Threads)
 find_package (Eigen3 )
 # find_package(realsense2)
 find_package(OpenCV REQUIRED )
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a exec_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
-##     but can be declared for certainty nonetheless:
-##     * add a exec_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#    FILES
-#    Num.msg
-#    RawImu.msg
-#    batterymsg.msg
-#    roverpwmcontrol.msg
-#    sonarmsg.msg
-#   Message1.msg
-#   Message2.msg
-# )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-   # FILES
-   # AddTwoInts.srv
-#   Service1.srv
-#   Service2.srv
- # )
-
-
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -115,6 +44,14 @@ generate_messages(
    sensor_msgs
    geometry_msgs
 )
+
+#add dynamic reconfigure api
+#find_package(catkin REQUIRED dynamic_reconfigure)
+generate_dynamic_reconfigure_options(
+  cfg/Roverbot.cfg
+  #...
+)
+
 
 
 ################################################
@@ -158,42 +95,58 @@ CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs geometry_msgs message_runtime c
 # header and cpputility_SOURCES
 #-------------------------------------------------------
 set(HEADER_BASE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
+# message("----------------------------------------------------------${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB EXT_SOURCES_BASE "extsrc/*.cpp")
 
 ###########
 ## Build ##
 ###########
 
-add_executable(roverimupub src/rover_publish_imu.cpp)
-target_sources(roverimupub PUBLIC ${EXT_SOURCES_BASE})
-target_link_libraries(roverimupub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
-target_include_directories(roverimupub PUBLIC ${HEADER_BASE})
-add_dependencies(roverimupub roverbot_generate_messages_cpp)
-
-add_executable(roverpwmctrl src/rover_pwm_ctrl.cpp)
-target_sources(roverpwmctrl PUBLIC ${EXT_SOURCES_BASE})
-target_link_libraries(roverpwmctrl ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
-target_include_directories(roverpwmctrl PUBLIC ${HEADER_BASE})
-add_dependencies(roverpwmctrl roverbot_generate_messages_cpp)
-
-add_executable(roversonarpub src/rover_publish_sonar.cpp)
-target_sources(roversonarpub PUBLIC ${EXT_SOURCES_BASE})
-target_link_libraries(roversonarpub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
-target_include_directories(roversonarpub PUBLIC ${HEADER_BASE})
-add_dependencies(roversonarpub roverbot_generate_messages_cpp)
+# add_executable(roverimupub src/rover_publish_imu.cpp)
+# target_sources(roverimupub PUBLIC ${EXT_SOURCES_BASE})
+# target_link_libraries(roverimupub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
+# target_include_directories(roverimupub PUBLIC ${HEADER_BASE})
+# add_dependencies(roverimupub roverbot_generate_messages_cpp )
+# add_dependencies(roverimupub ${PROJECT_NAME}_gencfg )
 
 
+# add_executable(roverpwmctrl src/rover_pwm_ctrl.cpp)
+# target_sources(roverpwmctrl PUBLIC ${EXT_SOURCES_BASE})
+# target_link_libraries(roverpwmctrl ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
+# target_include_directories(roverpwmctrl PUBLIC ${HEADER_BASE})
+# add_dependencies(roverpwmctrl roverbot_generate_messages_cpp)
+# add_dependencies(roverpwmctrl ${PROJECT_NAME}_gencfg )
 
-add_executable(roverbatterypub src/rover_battery_publish.cpp)
-target_sources(roverbatterypub PUBLIC ${EXT_SOURCES_BASE})
-target_link_libraries(roverbatterypub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
-target_include_directories(roverbatterypub PUBLIC ${HEADER_BASE})
-add_dependencies(roverbatterypub roverbot_generate_messages_cpp)
+
+# add_executable(roversonarpub src/rover_publish_sonar.cpp)
+# target_sources(roversonarpub PUBLIC ${EXT_SOURCES_BASE})
+# target_link_libraries(roversonarpub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
+# target_include_directories(roversonarpub PUBLIC ${HEADER_BASE})
+# add_dependencies(roversonarpub roverbot_generate_messages_cpp)
+# add_dependencies(roversonarpub ${PROJECT_NAME}_gencfg )
 
 
-# 
+# add_executable(roverbatterypub src/rover_battery_publish.cpp)
+# target_sources(roverbatterypub PUBLIC ${EXT_SOURCES_BASE})
+# target_link_libraries(roverbatterypub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
+# target_include_directories(roverbatterypub PUBLIC ${HEADER_BASE})
+# add_dependencies(roverbatterypub roverbot_generate_messages_cpp)
+# add_dependencies(roverbatterypub ${PROJECT_NAME}_gencfg )
 
+add_executable(rovercampub src/rover_cam_publish.cpp)
+target_sources(rovercampub PUBLIC ${EXT_SOURCES_BASE})
+target_link_libraries(rovercampub ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
+target_include_directories(rovercampub PUBLIC ${HEADER_BASE})
+add_dependencies(rovercampub roverbot_generate_messages_cpp)
+add_dependencies(rovercampub ${PROJECT_NAME}_gencfg )
+
+
+add_executable(roveri2clooper src/rover_i2c_looper.cpp)
+target_sources(roveri2clooper PUBLIC ${EXT_SOURCES_BASE})
+target_link_libraries(roveri2clooper ${catkin_LIBRARIES}  ${OpenCV_LIBS}  Eigen3::Eigen)
+target_include_directories(roveri2clooper PUBLIC ${HEADER_BASE})
+add_dependencies(roveri2clooper roverbot_generate_messages_cpp)
+add_dependencies(roveri2clooper ${PROJECT_NAME}_gencfg )
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations

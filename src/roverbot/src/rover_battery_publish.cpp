@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include <ros/console.h>
 #include <iostream>
 // #include "std_msgs/String.h"
 // #include "sensor_msgs/Imu.h"
@@ -30,14 +31,14 @@ void setBatteryMeasurements(rosutils::batterymsg& battery){
 int main(int argc, char **argv)
 {
   
-  ros::init(argc, argv, "rover_battery_publish_node");
+  ros::init(argc, argv, "rover_battery");
 
   ros::NodeHandle nh("roverbot");
   nh.setParam("batterySensfreq", 1);
 
   ros::Publisher battery_pub = nh.advertise<rosutils::batterymsg>("rover_battery", 100);
 
-  std::unique_ptr<ros::Rate> loop_rate_ptr( new ros::Rate(1) );
+  std::unique_ptr<ros::Rate> loop_rate_ptr( new ros::Rate(0.1) );
   int  batterySensfreq=1,prevbatterySensfreq=1;
 
   

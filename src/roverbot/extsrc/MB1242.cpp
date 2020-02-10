@@ -38,20 +38,20 @@ void MB1242::changeAddress(uint8_t oldaddr, uint8_t newaddr)
 void MB1242::requestDistance(void)
 {
     // I2Cdev::writeByte(_addr, 0x00, 0x51);
-    i2cCtrl->writeByte(_addr, 0x00, 0x51);
+    i2cCtrl->writeByte(_addr, 224, 81);
     // cpi2c_writeRegister(_addr, 0x00, 0x51);
 }
 
-uint16_t MB1242::getDistance(void)
+int MB1242::getDistance(void)
 {
-    uint16_t tmp;
-    i2cCtrl->readWord(_addr, 0,&tmp);
-    
+    uint8_t tmp[2];
+    // i2cCtrl->readWord(_addr, 225,&tmp);
+    i2cCtrl->readBytes(_addr,224,2,tmp);
     // uint16_t tmp = cpi2c_readRegister_8_16(_addr, 0x00);
 
     // Reverse endianness to get distance
-    uint16_t distance = (tmp>>8) | (tmp<<8);
-
+    // uint16_t distance = (tmp>>8) | (tmp<<8);
+    int distance = tmp[0]*256+tmp[1];
     return distance;
 
 }

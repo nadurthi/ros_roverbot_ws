@@ -79,7 +79,7 @@ void loop() {
   
   if(flag==1){
     
-    dly=c[delayind];
+    dly=c[delayind]*4;
 
     
     switch (c[dirind]) {
@@ -128,7 +128,7 @@ void loop() {
 
   }
 
-  if((millis()-time>dly) || (millis()-time>200) ){
+  if((millis()-time>dly) || (millis()-time>2000) ){
     analogWrite(LeftPwm, 0);
     analogWrite(RightPwm, 0);
     digitalWrite(LeftPinF, LOW);
