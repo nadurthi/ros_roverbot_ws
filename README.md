@@ -12,5 +12,6 @@ https://github.com/cedricve/raspicam
 - On pi do this to enable opencv to read the cam
     sudo modprobe bcm2835-v4l2
 
+- git submodule add git@github.com:nadurthi/rosutils.git src/rosutils
 
 - rosrun rqt_reconfigure rqt_reconfigure
